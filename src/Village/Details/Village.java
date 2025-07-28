@@ -3,9 +3,9 @@ package Village.Details;
 public class Village {
     private String name;
     private String district;
-    private int population;
+    private String population;
 
-    public Village(String name, String district, int population) {
+    public Village(String name, String district, String population) {
         this.name = name;
         this.district = district;
         this.population = population;

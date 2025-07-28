@@ -1,15 +1,20 @@
 package Village.Details;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.PreparedStatement;
 import java.util.*;
 
 public class VillageForm {
     private JFrame frame;
-    private JTextField nameField, districtField, populationField;
+    private JTextField nameField, districtField, stateField;
     private Set<Integer> usedIds = new HashSet<>();
     private Random random = new Random();
+    private DefaultTableModel tableModel; // 🔧 add this at class level
 
-    public VillageForm(DefaultListModel<String> listModel,JFrame parentFrame) {
+
+    public VillageForm(DefaultTableModel tableModel, JFrame parentFrame) {
+        this.tableModel=tableModel;
         frame = new JFrame("Village Management");
         frame.setSize(600, 500);
         frame.setLayout(null);
@@ -31,13 +36,13 @@ public class VillageForm {
         districtField.setBounds(140, 70, 150, 25);
         frame.add(districtField);
 
-        JLabel populationLabel = new JLabel("Population:");
-        populationLabel.setBounds(30, 110, 100, 25);
-        frame.add(populationLabel);
+        JLabel stateLabel = new JLabel("State:");
+        stateLabel.setBounds(30, 110, 100, 25);
+        frame.add(stateLabel);
 
-        populationField = new JTextField();
-        populationField.setBounds(140, 110, 150, 25);
-        frame.add(populationField);
+        stateField = new JTextField();
+        stateField.setBounds(140, 110, 150, 25);
+        frame.add(stateField);
 
         JButton addButton = new JButton("Add Village");
         addButton.setBounds(100, 160, 130, 30);
@@ -48,21 +53,32 @@ public class VillageForm {
         addButton.addActionListener(e -> {
                     String name = nameField.getText().trim();
                     String district = districtField.getText().trim();
-                    String popText = populationField.getText().trim();
+                    String state = stateField.getText().trim();
+                    int id =generateUniqueId();
 
-                    if (name.isEmpty() || district.isEmpty() || popText.isEmpty()) {
+                    if (name.isEmpty() || district.isEmpty() || state.isEmpty()) {
                         JOptionPane.showMessageDialog(frame, "Please fill all fields.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-
-                    if (!popText.matches("\\d+")) {
-                        JOptionPane.showMessageDialog(frame, "Population must be numeric.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
+                    try {
+                    Conn c = new Conn();
+                    String query = "insert into Village(Id,Name,District,State) Values (?,?,?,?)";
+                    PreparedStatement pst = c.conn.prepareStatement(query);
+                    pst.setInt(1, id);
+                    pst.setString(2, name);
+                    pst.setString(3, district);
+                    pst.setString(4, state);
+                    pst.executeUpdate();
+                    tableModel.addRow(new Object[]{id, name, district, state});
+                    pst.close();
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
                     }
 
-                    int population = Integer.parseInt(popText);
-                    int villageId = generateUniqueId();
-                    listModel.addElement("ID: " + villageId + " | " + new Village(name, district, population));
+
+
+
+//            listModel.addElement("ID: " + villageId + " | " + new Village(name, district, state));
 
                     JOptionPane.showMessageDialog(frame, "Village added Successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
 
