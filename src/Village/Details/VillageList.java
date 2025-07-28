@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 
 public class VillageList {
-    Village village;
+
     private JTable table;
     private DefaultTableModel tableModel;
     private DefaultListModel<String> villageList = new DefaultListModel<>();
